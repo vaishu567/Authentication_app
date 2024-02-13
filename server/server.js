@@ -25,22 +25,23 @@ const connectDB = async () => {
 // middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use("/user", userRoute);
 app.use("/images", express.static(path.join(__dirname, "/images")));
+app.use("/user", userRoute);
 
 // Image upload
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, path.resolve(__dirname, "images"));
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
 });
 
 const upload = multer({ storage: storage });
 
-app.post("/user/api/upload", upload.single("file"), (req, res) => {
+app.post("/user/api/upload", protect, upload.single("file"), (req, res) => {
+  console.log(req.file);
   res.status(200).json("Image uploaded successfully");
 });
 

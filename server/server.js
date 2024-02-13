@@ -8,8 +8,8 @@ const multer = require("multer");
 // const User = require("./models/User");
 
 const app = express();
-app.use(express.json());
-
+const PORT = process.env.PORT || 5000;
+// database
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URL);
@@ -18,6 +18,9 @@ const connectDB = async () => {
     console.log(error);
   }
 };
+
+// middlewares
+app.use(express.json());
 
 // User registration
 // app.post("/api/register", async (req, res) => {
@@ -79,7 +82,6 @@ const connectDB = async () => {
 //   res.status(200).send("Image uploaded successfully");
 // });
 
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   connectDB();
   console.log(`Server running on port ${PORT}`);

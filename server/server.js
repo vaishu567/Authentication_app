@@ -5,6 +5,7 @@ const dotenv = require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const { protect } = require("./middleware/authMiddleware");
 // const User = require("./models/User");
 
 const app = express();
@@ -21,66 +22,31 @@ const connectDB = async () => {
 
 // middlewares
 app.use(express.json());
-
-// User registration
-// app.post("/api/register", async (req, res) => {
-//   try {
-//     const { username, password } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     const user = new User({ username, password: hashedPassword });
-//     await user.save();
-//     res.status(201).send("User registered successfully");
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
-
-// User login
-// app.post("/api/login", async (req, res) => {
-//   const { username, password } = req.body;
-//   const user = await User.findOne({ username });
-//   if (!user) {
-//     return res.status(404).send("User not found");
-//   }
-//   const validPassword = await bcrypt.compare(password, user.password);
-//   if (!validPassword) {
-//     return res.status(401).send("Invalid password");
-//   }
-//   const token = jwt.sign({ username: user.username }, "secret");
-//   res.send({ token });
-// });
-
-// Middleware to verify JWT
-// const verifyToken = (req, res, next) => {
-//   const token = req.headers["authorization"];
-//   if (!token) {
-//     return res.status(401).send("Access Denied");
-//   }
-//   try {
-//     const verified = jwt.verify(token, "secret");
-//     req.user = verified;
-//     next();
-//   } catch (error) {
-//     res.status(400).send("Invalid Token");
-//   }
-// };
+app.use("/images", express.static(path.join(__dirname, "/images")));
 
 // Image upload
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
 
-// const upload = multer({ storage });
+const upload = multer({ storage });
 
-// app.post("/api/upload", verifyToken, upload.single("image"), (req, res) => {
-//   res.status(200).send("Image uploaded successfully");
-// });
+app.post(
+  "/api/upload",
+  protect,
+  upload.single("image")(req, res, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(400).send("Error uploading image");
+    }
+    res.status(200).send("Image uploaded successfully");
+  })
+);
 
 app.listen(PORT, () => {
   connectDB();

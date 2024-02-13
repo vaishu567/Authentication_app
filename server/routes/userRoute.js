@@ -4,6 +4,7 @@ const {
   loginController,
   logoutController,
   registerController,
+  fetchController,
 } = require("../controllers/userController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -11,6 +12,7 @@ const { protect } = require("../middleware/authMiddleware");
 router.post("/login", loginController);
 router.post("/register", registerController);
 router.get("/logout", logoutController);
+router.get("/refetch", fetchController);
 // router.post("/uploadimages", protect, uploadImagesController);
 
 module.exports = router;

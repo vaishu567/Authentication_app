@@ -3,11 +3,12 @@ const userModel = require("../model/User");
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../config/generateToken");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // LOGIN CONTROLLLER:
 const loginController = asyncHandler(async (req, res) => {
-  const { name, password } = req.body;
-  const user = await userModel.findOne({ name });
+  const { email, password } = req.body;
+  const user = await userModel.findOne({ email });
   if (!user) {
     return res.status(404).json("User not found!");
   }
@@ -25,7 +26,7 @@ const loginController = asyncHandler(async (req, res) => {
       email: user.email,
       token: token,
     };
-    res.cookie("token", token).status(200).json("Login successful");
+    res.cookie("token", token).status(200).json(response);
     console.log(response);
   } else {
     res.status(404);
@@ -87,8 +88,20 @@ const logoutController = asyncHandler(async (req, res) => {
   }
 });
 
+const fetchController = asyncHandler(async (req, res) => {
+  const token = req.cookies.token;
+  jwt.verify(token, process.env.JWT_SECRET, {}, async (err, data) => {
+    if (err) {
+      return res.status(404).json(err);
+    }
+    res.status(200).json(data);
+    console.log(data);
+  });
+});
+
 module.exports = {
   loginController,
   registerController,
   logoutController,
+  fetchController,
 };

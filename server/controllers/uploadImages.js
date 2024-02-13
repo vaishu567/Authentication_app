@@ -1,5 +1,5 @@
 const express = require("express");
-const userModel = require("../model/userModel");
+const userModel = require("../model/User");
 const asyncHandler = require("express-async-handler");
 const multer = require("multer");
 

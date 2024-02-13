@@ -11,4 +11,6 @@ const { protect } = require("../middleware/authMiddleware");
 router.post("/login", loginController);
 router.post("/register", registerController);
 router.get("/logout", logoutController);
-router.post("/uploadimages", protect, uploadImagesController);
+// router.post("/uploadimages", protect, uploadImagesController);
+
+module.exports = router;

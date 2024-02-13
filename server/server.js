@@ -2,8 +2,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv").config();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+
+const userRoute = require("./routes/userRoute");
 const multer = require("multer");
 const { protect } = require("./middleware/authMiddleware");
 // const User = require("./models/User");
@@ -22,31 +24,40 @@ const connectDB = async () => {
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
+app.use("/user", userRoute);
 app.use("/images", express.static(path.join(__dirname, "/images")));
 
 // Image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, path.resolve(__dirname, "images"));
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
-app.post(
-  "/api/upload",
-  protect,
-  upload.single("image")(req, res, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(400).send("Error uploading image");
-    }
-    res.status(200).send("Image uploaded successfully");
-  })
-);
+app.post("/user/api/upload", upload.single("file"), (req, res) => {
+  res.status(200).json("Image uploaded successfully");
+});
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.resolve(__dirname, "images")); // Corrected destination path
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, file.originalname); // Use original filename
+//   },
+// });
+
+// const upload = multer({ storage: storage });
+
+// app.post("/user/api/upload", upload.single("file"), (req, res) => {
+//   res.status(200).json("Image uploaded successfully");
+// });
 
 app.listen(PORT, () => {
   connectDB();

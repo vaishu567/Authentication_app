@@ -1,5 +1,5 @@
 const express = require("express");
-const userModel = require("../model/userModel");
+const userModel = require("../model/User");
 const asyncHandler = require("express-async-handler");
 const generateToken = require("../config/generateToken");
 const bcrypt = require("bcrypt");
@@ -25,9 +25,8 @@ const loginController = asyncHandler(async (req, res) => {
       email: user.email,
       token: token,
     };
-    res.cookie("token", token).status(200).json(response);
+    res.cookie("token", token).status(200).json("Login successful");
     console.log(response);
-    res.json("Login successful");
   } else {
     res.status(404);
     throw new Error("Invalid credentials!");
